@@ -1,0 +1,528 @@
+/* =========================================================
+   TAKLIFNOMA — romantic luxury invitation
+   Token system
+   Color   : --plum (deep base), --rose / --petal (pink family),
+             --gold / --gold-light (metallic accent), --ivory (paper white)
+   Type    : Cormorant Garamond (display/serif), Marck Script (signature accent),
+             Jost (utility / body, wide tracking for a couture feel)
+   Layout  : single centered vertical composition, framed by thin gold
+             ornament rules — echoes an engraved invitation card
+   Signature: the evasive "Yo'q" button + the glass invitation card
+========================================================= */
+
+:root {
+  --plum-950: #1c0f16;
+  --plum-900: #2b1620;
+  --plum-800: #3a1f2c;
+  --rose-400: #f2a8c2;
+  --rose-300: #f7c6d9;
+  --rose-200: #fbdce8;
+  --blush-100: #fff1f5;
+  --ivory: #fffaf6;
+  --gold-500: #cf9d55;
+  --gold-400: #e3bb7d;
+  --gold-300: #f1dcae;
+  --ink: #4a2434;
+
+  --glass-bg: rgba(255, 246, 250, 0.10);
+  --glass-border: rgba(241, 220, 174, 0.35);
+  --glass-blur: 18px;
+
+  --shadow-soft: 0 20px 60px rgba(14, 4, 10, 0.45);
+  --ease-luxe: cubic-bezier(0.22, 1, 0.36, 1);
+
+  --font-display: "Cormorant Garamond", "Times New Roman", serif;
+  --font-script: "Marck Script", cursive;
+  --font-body: "Jost", "Helvetica Neue", sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  min-height: 100vh;
+  background: var(--plum-950);
+  color: var(--ivory);
+  font-family: var(--font-body);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* =========================================================
+   DEVICE BLOCKER — desktop-only gate
+========================================================= */
+.device-blocker {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 32px;
+  background: radial-gradient(circle at 50% 40%, var(--plum-800), var(--plum-950));
+}
+
+.device-blocker__mark {
+  font-size: 3rem;
+  margin-bottom: 18px;
+  filter: drop-shadow(0 0 18px rgba(255, 90, 130, 0.45));
+}
+
+.device-blocker__title {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  max-width: 480px;
+  line-height: 1.4;
+  margin: 0 0 10px;
+  color: var(--rose-200);
+}
+
+.device-blocker__subtitle {
+  font-family: var(--font-body);
+  font-weight: 300;
+  letter-spacing: 0.04em;
+  color: var(--gold-300);
+  margin: 0;
+}
+
+/* When the gate is active, lock the underlying page completely */
+body.is-blocked {
+  overflow: hidden;
+  height: 100vh;
+}
+
+body.is-blocked .device-blocker {
+  display: flex;
+}
+
+body.is-blocked .stage,
+body.is-blocked .bg,
+body.is-blocked .music-toggle,
+body.is-blocked .cursor-layer,
+body.is-blocked .celebration-canvas {
+  display: none !important;
+}
+
+/* =========================================================
+   AMBIENT BACKGROUND
+========================================================= */
+.bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.bg__gradient {
+  position: absolute;
+  inset: -10%;
+  background:
+    radial-gradient(ellipse at 20% 15%, rgba(242, 168, 194, 0.20), transparent 55%),
+    radial-gradient(ellipse at 80% 85%, rgba(207, 157, 85, 0.16), transparent 55%),
+    linear-gradient(160deg, var(--plum-950) 0%, var(--plum-900) 45%, var(--plum-800) 100%);
+  background-size: 200% 200%;
+  animation: gradientDrift 22s var(--ease-luxe) infinite alternate;
+}
+
+@keyframes gradientDrift {
+  0%   { background-position: 0% 0%; }
+  100% { background-position: 100% 100%; }
+}
+
+.bg__glow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(70px);
+  opacity: 0.55;
+  animation: glowFloat 16s ease-in-out infinite;
+}
+
+.bg__glow--one {
+  width: 420px; height: 420px;
+  top: -120px; left: -80px;
+  background: radial-gradient(circle, rgba(247, 198, 217, 0.55), transparent 70%);
+  animation-duration: 18s;
+}
+
+.bg__glow--two {
+  width: 480px; height: 480px;
+  bottom: -160px; right: -100px;
+  background: radial-gradient(circle, rgba(207, 157, 85, 0.40), transparent 70%);
+  animation-duration: 24s;
+  animation-delay: -6s;
+}
+
+.bg__glow--three {
+  width: 320px; height: 320px;
+  top: 40%; left: 45%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.12), transparent 70%);
+  animation-duration: 20s;
+  animation-delay: -3s;
+}
+
+@keyframes glowFloat {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(30px, -25px) scale(1.08); }
+}
+
+#heartsCanvas, #sparkleCanvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* =========================================================
+   CURSOR HEART TRAIL
+========================================================= */
+.cursor-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.cursor-heart {
+  position: absolute;
+  font-size: 14px;
+  color: var(--rose-300);
+  opacity: 0.9;
+  transform: translate(-50%, -50%);
+  animation: cursorHeartFade 900ms ease-out forwards;
+  will-change: transform, opacity;
+}
+
+@keyframes cursorHeartFade {
+  0%   { opacity: 0.9; transform: translate(-50%, -50%) scale(0.6) translateY(0); }
+  100% { opacity: 0;   transform: translate(-50%, -50%) scale(1.15) translateY(-26px); }
+}
+
+/* =========================================================
+   MUSIC TOGGLE
+========================================================= */
+.music-toggle {
+  position: fixed;
+  top: 28px;
+  right: 32px;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 999px;
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  color: var(--gold-300);
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: transform 300ms var(--ease-luxe), box-shadow 300ms var(--ease-luxe), background 300ms;
+}
+
+.music-toggle:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(207, 157, 85, 0.25);
+  background: rgba(255, 246, 250, 0.16);
+}
+
+.music-toggle__icon {
+  font-size: 1rem;
+  animation: musicIdle 2.4s ease-in-out infinite;
+}
+
+.music-toggle.is-playing .music-toggle__icon { animation: musicPlaying 900ms ease-in-out infinite; }
+
+@keyframes musicIdle {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(-8deg); }
+}
+@keyframes musicPlaying {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+}
+
+/* =========================================================
+   STAGE / LAYOUT
+========================================================= */
+.stage {
+  position: relative;
+  z-index: 10;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 24px;
+}
+
+.scene {
+  width: min(720px, 92vw);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.ornament {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  max-width: 320px;
+  margin: 0 auto 30px;
+  color: var(--gold-400);
+}
+
+.ornament--bottom { margin: 34px auto 0; }
+
+.ornament__line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold-400), transparent);
+}
+
+.ornament__diamond {
+  font-size: 0.8rem;
+  transform: rotate(0deg);
+  animation: sparkleTwinkle 3s ease-in-out infinite;
+}
+
+@keyframes sparkleTwinkle {
+  0%, 100% { opacity: 0.6; transform: scale(1) rotate(0deg); }
+  50% { opacity: 1; transform: scale(1.25) rotate(90deg); }
+}
+
+/* =========================================================
+   INVITE SCENE TYPOGRAPHY
+========================================================= */
+.fade-up {
+  opacity: 0;
+  transform: translateY(28px);
+  animation: fadeUp 1000ms var(--ease-luxe) forwards;
+  animation-delay: calc(var(--d) * 260ms + 200ms);
+}
+
+@keyframes fadeUp {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.invite-heading {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(2.2rem, 4vw, 3.4rem);
+  letter-spacing: 0.01em;
+  margin: 0 0 26px;
+  color: var(--ivory);
+  text-shadow: 0 0 40px rgba(247, 198, 217, 0.35);
+}
+
+.heart-glyph {
+  display: inline-block;
+  animation: heartbeat 1.8s ease-in-out infinite;
+}
+
+@keyframes heartbeat {
+  0%, 100% { transform: scale(1); }
+  15% { transform: scale(1.18); }
+  30% { transform: scale(1); }
+  45% { transform: scale(1.12); }
+  60% { transform: scale(1); }
+}
+
+.invite-lead {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: clamp(1.2rem, 2vw, 1.55rem);
+  line-height: 1.65;
+  color: var(--rose-200);
+  margin: 0 0 28px;
+}
+
+.invite-lead strong {
+  font-style: normal;
+  color: var(--gold-300);
+  font-weight: 600;
+}
+
+.invite-message {
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: 1.02rem;
+  line-height: 1.9;
+  letter-spacing: 0.02em;
+  color: rgba(255, 250, 246, 0.78);
+  max-width: 480px;
+  margin: 0 0 46px;
+}
+
+/* =========================================================
+   QUESTION + BUTTONS
+========================================================= */
+.question-text {
+  font-family: var(--font-script);
+  font-weight: 400;
+  font-size: clamp(1.9rem, 3vw, 2.6rem);
+  color: var(--gold-300);
+  margin: 0 0 34px;
+}
+
+.buttons-area {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+  min-height: 90px;
+  width: 100%;
+}
+
+.btn {
+  font-family: var(--font-body);
+  font-size: 1.02rem;
+  letter-spacing: 0.03em;
+  padding: 16px 34px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: transform 260ms var(--ease-luxe), box-shadow 260ms var(--ease-luxe);
+}
+
+.btn--yes {
+  background: linear-gradient(135deg, var(--gold-400), var(--gold-500));
+  color: var(--plum-950);
+  font-weight: 600;
+  box-shadow: 0 14px 34px rgba(207, 157, 85, 0.35);
+}
+
+.btn--yes:hover {
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 18px 44px rgba(207, 157, 85, 0.5);
+}
+
+.btn--yes:active { transform: translateY(-1px) scale(0.99); }
+
+.btn--no {
+  position: absolute;
+  background: var(--glass-bg);
+  border-color: var(--glass-border);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  color: var(--rose-200);
+  font-weight: 400;
+  transition: left 260ms var(--ease-luxe), top 260ms var(--ease-luxe),
+              transform 220ms var(--ease-luxe), opacity 220ms var(--ease-luxe);
+}
+
+/* When JS switches the "no" button into static-flow layout initially */
+.btn--no.is-floating {
+  position: fixed;
+  z-index: 60;
+}
+
+.btn--no.is-hiding {
+  opacity: 0;
+  transform: scale(0.7);
+}
+
+/* =========================================================
+   THANK YOU SCENE
+========================================================= */
+.scene--thanks {
+  animation: sceneIn 700ms var(--ease-luxe) forwards;
+}
+
+@keyframes sceneIn {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.glass-card {
+  width: min(560px, 90vw);
+  padding: 64px 48px;
+  border-radius: 28px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  box-shadow: var(--shadow-soft);
+  text-align: center;
+  opacity: 0;
+  transform: scale(0.9);
+  animation: cardReveal 900ms var(--ease-luxe) forwards;
+  animation-delay: 200ms;
+}
+
+@keyframes cardReveal {
+  to { opacity: 1; transform: scale(1); }
+}
+
+.thanks-heart {
+  font-size: 3rem;
+  margin-bottom: 10px;
+  animation: heartbeat 1.6s ease-in-out infinite;
+  filter: drop-shadow(0 0 24px rgba(242, 168, 194, 0.6));
+}
+
+.thanks-heading {
+  font-family: var(--font-display);
+  font-size: clamp(2.4rem, 4vw, 3.2rem);
+  font-weight: 600;
+  color: var(--ivory);
+  margin: 0 0 22px;
+  letter-spacing: 0.02em;
+  text-shadow: 0 0 40px rgba(247, 198, 217, 0.4);
+}
+
+.thanks-text {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 1.3rem;
+  line-height: 1.7;
+  color: var(--rose-200);
+  margin: 0 0 20px;
+}
+
+.thanks-text strong {
+  font-style: normal;
+  color: var(--gold-300);
+}
+
+.thanks-footer {
+  font-family: var(--font-body);
+  font-weight: 300;
+  letter-spacing: 0.03em;
+  color: rgba(255, 250, 246, 0.75);
+  margin: 0;
+}
+
+/* =========================================================
+   CELEBRATION CANVAS (confetti / fireworks / hearts burst)
+========================================================= */
+.celebration-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  pointer-events: none;
+  width: 100%;
+  height: 100%;
+}
